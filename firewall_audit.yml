@@ -1,0 +1,223 @@
+--- # PaloAlto Firewall Audit
+#
+# 1. Review host file:   /home/ansible/playbooks/hosts
+#
+# 2. RUN as root:   ansible-playbook /home/ansible/playbooks/firewall_audit.yml
+#
+#
+# Palo Alto Device List
+# https://confluence.sglcarbon.eu/display/CIS/Palo+Alto+Device+List
+#
+# Palo Alto - Cortex Data Lake - Cloud Logging Service
+# https://confluence.sglcarbon.eu/display/CIS/Palo+Alto+-+Cortex+Data+Lake+-+Cloud+Logging+Service
+#
+# TESTS: ansible-playbook -i hosts firewall_audit.yml
+
+
+### PaloAlto Firewall Audit
+- name: firewall_audit
+  hosts:
+    - eu_firewall
+    - us_firewall
+    - a_firewall
+  connection: ssh
+  gather_facts: no ### Hangs while gathering facts
+
+
+#########
+# VARS
+#########
+
+  vars:
+    temp_output: ""
+    temp_status: ""
+    #log_output: "/var/www/html/ansible/firewall_audit/'{{ ansible_play_name }}'.'{{ ansible_date_time.iso8601_basic_short }}'.'{{ inventory_hostname_short }}'.log"
+    log_output: "/var/www/html/ansible/firewall_audit/'{{ ansible_play_name }}'.'{{ inventory_hostname }}'.log"
+    log_status: "/var/www/html/ansible/firewall_audit/'{{ ansible_play_name }}'.status.log"
+    bash_script: "/home/ansible/playbooks/firewall_audit.sh"
+    host_unreachable: False
+    show_logging_status_ok: False
+
+
+
+  tasks:
+
+
+#########
+# TASK - PRE TASKS
+#########
+
+  #pre_tasks:
+
+
+#########
+# TASK - AUDIT FIREWALL - SHOW LOGGING STATUS
+#########
+
+  - name: Show Logging Status
+    shell: "{{ bash_script }} {{ ansible_user }} {{ inventory_hostname }} 'show logging-status' | grep 'log forwarding agent' | grep 'active and connected'"
+    delegate_to: localhost
+    failed_when: false
+    changed_when: show_logging_status.rc != 0
+    register: show_logging_status
+
+
+  # Show Logging Status - OK
+  - set_fact:
+      show_logging_status_ok: True
+      temp_output: "   Logging Status: OK \n   {{ show_logging_status.stdout_lines | to_nice_json }}"
+      temp_status: "is active and connected"
+    when: show_logging_status.rc == 0
+
+  - debug:
+      msg:
+        - "   Logging Status: OK"
+        -  "{{ show_logging_status.stdout_lines }}"
+    when: show_logging_status_ok |bool and show_logging_status.rc == 0
+
+
+  # Show Logging Status - NOK
+  - set_fact:
+      temp_output: "   Logging Status: ***** Critical *****\n   {{ show_logging_status.stdout_lines | to_nice_json }}\n"
+      temp_status: "***** is Critical *****"
+    when: not show_logging_status_ok |bool and show_logging_status.rc == 0
+
+  - debug:
+      msg: "   Logging Status: ***** Critical *****"
+    when: not show_logging_status_ok |bool and show_logging_status.rc == 0
+
+
+    # Host unreachable
+  - set_fact:
+      host_unreachable: True
+      temp_output: "   Logging Status: ***** Host Unreachable *****\n"
+      temp_status: "***** is Unreachable *****"
+    when: show_logging_status.rc ==1
+
+  - debug:
+      msg: "   Logging Status: ***** Host Unreachable *****"
+    when: show_logging_status.rc ==1
+
+
+
+#########
+# TASK - LOGGING STATUS TO FILE
+#########
+
+  # Logging to file - Logging Status
+  - name: Logging to file - Logging Status
+    shell: |
+       echo -e "\n\n\n[ {{ inventory_hostname }} ]   @   `date`\n\n" > {{ log_output }}
+       echo -e '{{ temp_output }}' >> {{ log_output }}
+    delegate_to: localhost
+    changed_when: false
+    failed_when: false
+
+#    shell: |
+#       echo -e "\n\n\n[ {{ inventory_hostname }} ]   @   {{ ansible_date_time.iso8601_basic_short }}\n\n" >> {{ log_output }}
+#       echo -e '{{ temp_output }}' >> {{ log_output }}
+
+
+
+#########
+# TASK - STATUS FILE
+#########
+
+  # Clear logging status file, only once
+  - name: Status file - Logging Status
+    shell: echo -e "\n\n\n`date`\n\n" > {{ log_status }}
+    delegate_to: localhost
+    changed_when: false
+    failed_when: false
+    run_once: true
+
+  # Status file - Logging Status
+  - name: Status file - Logging Status
+    shell: echo -e "{{ inventory_hostname }} {{ temp_status }}" >> {{ log_status }}
+    delegate_to: localhost
+    changed_when: false
+    failed_when: false
+
+
+
+#########
+# TASK - FAIL IN CASE OF CRITICAL STATUS OR UNREACHABLE
+#########
+
+  - fail: msg="Logging Status is Critical"
+    when: not show_logging_status_ok |bool and show_logging_status.rc == 0
+    ignore_errors: yes
+
+  - fail: msg="Host Unreachable"
+    when: show_logging_status.rc ==1
+    ignore_errors: yes
+
+
+
+#########
+# TASK - AUDIT FIREWALL - SHOW COMMANDS RESULTS
+#########
+
+  - set_fact:
+      aux_space: echo -e "\n\n\n\n\n" >> {{ log_output }}
+      aux_begin: " {{ bash_script }} {{ ansible_user }} {{ inventory_hostname }} "
+      #aux_end: " | tail -n +20 | grep -Ev 'ansible|^$' >> {{ log_output }} "
+      aux_end: " | grep -Ev 'ansible|Last login|set cli|^  configure|quit|^$' >> {{ log_output }} "
+      # Note: to see on console, cannot echo to log output file
+      # this was enforced for information to be displayed in a more readable way on web logs
+
+  - set_fact:
+      commands_list:
+        - "{{ aux_space }}"
+        - "{{ aux_begin }} 'show logging-status' {{ aux_end }}"
+        - "{{ aux_space }}"
+        - "{{ aux_begin }} 'show system info' {{ aux_end }}"
+        - "{{ aux_space }}"
+        - "{{ aux_begin }} 'show interface all' {{ aux_end }}"
+        - "{{ aux_space }}"
+        - "{{ aux_begin }} 'show routing summary' {{ aux_end }}"
+        - "{{ aux_space }}"
+        - "{{ aux_begin }} 'show routing route' {{ aux_end }}"
+        - "{{ aux_space }}"
+        - "{{ aux_begin }} 'show network virtual-router default routing-table' configure {{ aux_end }}"
+        - "{{ aux_space }}"
+        - "{{ aux_begin }} 'request system external-list show type ip name EDL_SGL-AGGREGATE-NET' {{ aux_end }}"
+
+
+  - name: Show system, interface and routing information
+    shell: '{{ item }}'
+    with_items: '{{ commands_list }}'
+    args:
+      warn: no
+    changed_when: false
+    ignore_errors: yes
+    delegate_to: localhost
+    #register: show_results
+    when: show_logging_status_ok |bool and show_logging_status.rc == 0
+
+   # needs configure :(
+   # "{{ bash_script }} {{ ansible_user }} {{ inventory_hostname }} 'show network virtual-router default routing-table'"
+
+
+  # - debug:
+  #     msg:
+  #       - "{{ show_results }}"
+        #- "{{ show_results.results | json_query('[].stdout_lines[]') }}"
+
+
+
+
+
+#########
+# TASK - SETUP LOG FILES IN WEB SERVER
+#########
+
+  - name: Setup log files in Web Server, and enforce a retention of 1000 existing files.
+    shell: |
+      ls -at /var/www/html/ansible/firewall_audit/*.log | tail -n +1001 | xargs rm -f
+      cd /var/www/html/ansible/firewall_audit && tree -T "FIREWALL AUDIT" -H '.' --noreport --charset utf-8 -r -P "*.log" > index.html
+      chown ansible.ansible /var/www/html/ansible/firewall_audit/*
+    delegate_to: localhost
+    changed_when: false
+    failed_when: false
+    tags: always

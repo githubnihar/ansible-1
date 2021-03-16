@@ -1,0 +1,104 @@
+--- # Setup Zabbix Server with Docker containers
+#
+# 1. Review host file:   /home/ansible/playbooks/hosts
+# 2. [root]#   ansible-playbook -i hosts ~/playbooks/zabbix_setup.yml
+
+- name: Setup Zabbix Server with Docker containers
+  hosts: localhost
+  #hosts: zabbix_server
+  #user: '{{ user }}'
+  #become: yes
+  #become_method: sudo
+  connection: ssh
+  gather_facts: yes
+
+
+
+#########
+# VARS
+#########
+
+  vars:
+
+     zabbix_git_clone_version: "5.2"
+     zabbix_git_clone_location: "~/zabbix-docker"
+     zabbix_docker_composer_file: "~/zabbix-docker/docker-compose_v3_ubuntu_mysql_latest.yaml"
+     zabbix_containers_location: "~/zabbix-docker"
+
+     temp_output: ""
+     log_output: "~/playbooks/'{{ ansible_play_name }}'.'{{ ansible_date_time.iso8601_basic_short }}'.'{{ inventory_hostname_short }}'.log"
+     #log_output: "~/playbooks/zabbix_setup.log"
+
+
+
+
+
+  tasks:
+
+#########
+# TASK - RUN LIST OF COMMANDS
+#########
+
+  - fail: msg="Unsupported OS"
+    when: not ansible_distribution == 'Ubuntu'
+
+
+  - name: OS Packages Update
+    apt:
+      name: "*"
+      state: latest
+      update_cache: yes
+    register: output_os_update
+  - debug:
+      msg:
+        - "{{ output_os_update.stdout_lines }}"
+        - "{{ output_os_update.stderr_lines }}"
+
+
+
+  - name: Install Docker and Docker Compose via SNAP
+    shell: snap install docker
+    register: output_install_docker
+  - debug:
+      msg:
+        - "{{ output_install_docker.stdout_lines }}"
+        - "{{ output_install_docker.stderr_lines }}"
+
+
+
+  - name: Clone Zabbix GIT repo
+    git:
+      repo: https://github.com/zabbix/zabbix-docker.git
+      dest: '{{ zabbix_git_clone_location }}'
+      version: '{{ zabbix_git_clone_version }}'
+      force: yes
+
+
+
+  - name: Comment line with bug on Docker Composer YAML file
+    replace:
+      path: "{{ zabbix_docker_composer_file }}"
+      regexp: '(.*start_period.*)'
+      replace: '#\1'
+
+
+
+  - name: Start Zabbix Docker Containers using Docker Composer
+    shell:
+      cmd: "docker-compose -f {{ zabbix_docker_composer_file }} up -d"
+      chdir: '{{ zabbix_containers_location }}'
+    register: output_start_zabbix_containers
+  - debug:
+      msg:
+        - "{{ output_start_zabbix_containers.cmd }}"
+        - "{{ output_start_zabbix_containers.stdout_lines }}"
+        - "{{ output_start_zabbix_containers.stderr_lines }}"
+
+
+
+  - name: Show Zabbix Containers
+    shell: docker ps
+    register: output_show_zabbix_containers
+  - debug:
+      msg:
+        - "{{ output_show_zabbix_containers.stdout_lines }}"

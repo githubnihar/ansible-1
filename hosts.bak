@@ -1,0 +1,156 @@
+# inventory file
+
+
+[localhost]
+wedcm408.sglcarbon.eu   cust=EDC  dtap=PRD  comment='Ansible Server'
+
+
+[linux_mgt]
+hoenlemi-centos-desktop.sglcarbon.eu   cust=EDC   dtap=PRD   comment='Jump Server'
+eedcs801.sglcarbon.eu   cust=UPP   dtap=PRD   comment='Puppet Server'
+wedcs513.sglcarbon.eu   cust=EDC   dtap=PRD   comment='Zabbix Server'
+
+
+[linux_proxy]
+aadcs427.logon.sglcarbon.net   cust=ADC   dtap=PRD   comment='Zabbix Proxy'
+apuns427.logon.sglcarbon.net   cust=PUN   dtap=PRD   comment='Zabbix Proxy'
+ashas427.logon.sglcarbon.net   cust=SHA   dtap=PRD   comment='Zabbix Proxy'
+ashxs427.logon.sglcarbon.net   cust=SHX   dtap=PRD   comment='Zabbix Proxy'
+ebons427.logon.sglcarbon.net   cust=BON   dtap=PRD   comment='Zabbix Proxy'
+eches427.logon.sglcarbon.net   cust=CHE   dtap=PRD   comment='Zabbix Proxy'
+eedcs427.logon.sglcarbon.net   cust=EDC   dtap=PRD   comment='Zabbix Proxy'
+egrns427.logon.sglcarbon.net   cust=GRN   dtap=PRD   comment='Zabbix Proxy'
+ehals427.logon.sglcarbon.net   cust=HAL   dtap=PRD   comment='Zabbix Proxy'
+elavs427.logon.sglcarbon.net   cust=LAV   dtap=PRD   comment='Zabbix Proxy'
+elims427.logon.sglcarbon.net   cust=LIM   dtap=PRD   comment='Zabbix Proxy'
+emads427.logon.sglcarbon.net   cust=MAD   dtap=PRD   comment='Zabbix Proxy'
+emebs427.logon.sglcarbon.net   cust=MEB   dtap=PRD   comment='Zabbix Proxy'
+emeis427.logon.sglcarbon.net   cust=MEI   dtap=PRD   comment='Zabbix Proxy'
+emoos427.logon.sglcarbon.net   cust=MOO   dtap=PRD   comment='Zabbix Proxy'
+eorts427.logon.sglcarbon.net   cust=ORT   dtap=PRD   comment='Zabbix Proxy'
+eries427.logon.sglcarbon.net   cust=RIE   dtap=PRD   comment='Zabbix Proxy'
+evers427.logon.sglcarbon.net   cust=VER   dtap=PRD   comment='Zabbix Proxy'
+ewacs427.logon.sglcarbon.net   cust=WAC   dtap=PRD   comment='Zabbix Proxy'
+ewils427.logon.sglcarbon.net   cust=WIL   dtap=PRD   comment='Zabbix Proxy'
+ewips427.logon.sglcarbon.net   cust=WIP   dtap=PRD   comment='Zabbix Proxy'
+narks427.logon.sglcarbon.net   cust=ARK   dtap=PRD   comment='Zabbix Proxy'
+nclts427.logon.sglcarbon.net   cust=CLT   dtap=PRD   comment='Zabbix Proxy'
+ngars427.logon.sglcarbon.net   cust=GAR   dtap=PRD   comment='Zabbix Proxy'
+nmgps427.logon.sglcarbon.net   cust=MGP   dtap=PRD   comment='Zabbix Proxy'
+nmlks427.logon.sglcarbon.net   cust=MLK   dtap=PRD   comment='Zabbix Proxy'
+nmrgs427.logon.sglcarbon.net   cust=MRG   dtap=PRD   comment='Zabbix Proxy'
+nndcs427.logon.sglcarbon.net   cust=NDC   dtap=PRD   comment='Zabbix Proxy'
+nstms427.logon.sglcarbon.net   cust=STM   dtap=PRD   comment='Zabbix Proxy'
+nstvs427.logon.sglcarbon.net   cust=STV   dtap=PRD   comment='Zabbix Proxy'
+nvals427.logon.sglcarbon.net   cust=VAL   dtap=PRD   comment='Zabbix Proxy'
+
+
+[linux_radius]
+aadcs428.sglcarbon.ap   cust=ADC   dtap=PRD   comment='Radius Server'
+apuns428.sglcarbon.ap   cust=PUN   dtap=PRD   comment='Radius Server'
+ashas428.sglcarbon.ap   cust=SHA   dtap=PRD   comment='Radius Server'
+ashx428.sglcarbon.ap   cust=SHX   dtap=PRD   comment='Radius Server'
+atoks428.sglcarbon.ap   cust=TOK   dtap=PRD   comment='Radius Server'
+ebons428.sglcarbon.eu   cust=BON   dtap=PRD   comment='Radius Server'
+eches428.sglcarbon.eu   cust=CHE   dtap=PRD   comment='Radius Server'
+eedcs428.sglcarbon.eu   cust=EDC   dtap=PRD   comment='Radius Server'
+egrns428.sglcarbon.eu   cust=GRN   dtap=PRD   comment='Radius Server'
+ehals428.sglcarbon.eu   cust=HAL   dtap=PRD   comment='Radius Server'
+elavs428.sglcarbon.eu   cust=LAV   dtap=PRD   comment='Radius Server'
+elims428.sglcarbon.eu   cust=LIM   dtap=PRD   comment='Radius Server'
+emads428.logon.sglcarbon.net   cust=MAD   dtap=PRD   comment='Radius Server'
+emebs428.sglcarbon.eu   cust=MEB   dtap=PRD   comment='Radius Server'   ansible_host=10.120.61.235
+emeis428.sglcarbon.eu   cust=MEI   dtap=PRD   comment='Radius Server'
+emoos428.sglcarbon.eu   cust=MOO   dtap=PRD   comment='Radius Server'
+eorts428.logon.sglcarbon.net   cust=ORT   dtap=PRD   comment='Radius Server'
+eries428.logon.sglcarbon.net   cust=RIE   dtap=PRD   comment='Radius Server'
+evers428.sglcarbon.eu   cust=VER   dtap=PRD   comment='Radius Server'
+ewacs428.sglcarbon.eu   cust=WAC   dtap=PRD   comment='Radius Server'
+ewies428.sglcarbon.eu   cust=WIE   dtap=PRD   comment='Radius Server'
+ewils428.sglcarbon.eu   cust=WIL   dtap=PRD   comment='Radius Server'
+narks428.sglcarbon.com   cust=ARK   dtap=PRD   comment='Radius Server'   ansible_host=10.129.157.235
+ngars428.sglcarbon.com   cust=GAR   dtap=PRD   comment='Radius Server'
+nmgps428.sglcarbon.com   cust=MGP   dtap=PRD   comment='Radius Server'
+nmlks428.sglcarbon.com   cust=MLK   dtap=PRD   comment='Radius Server'
+nmrgs428.sglcarbon.com   cust=MRG   dtap=PRD   comment='Radius Server'
+nndcs428.sglcarbon.com   cust=NDC   dtap=PRD   comment='Radius Server'
+nndcs428.sglcarbon.com   cust=NDC   dtap=PRD   comment='Radius Server'
+nstms428.sglcarbon.com   cust=STM   dtap=PRD   comment='Radius Server'
+nstvs428.sglcarbon.com   cust=STV   dtap=PRD   comment='Radius Server'
+nvals428.sglcarbon.com   cust=VAL   dtap=PRD   comment='Radius Server'
+wedcs428.sglcarbon.eu   cust=EDC   dtap=PRD   comment='Radius Server'
+wndcs428.sglcarbon.com   cust=NDC   dtap=PRD   comment='Radius Server'
+
+
+[linux_servers]
+aadcs956.sglcarbon.ap   cust=ADC   dtap=PRD   comment='Linux Server'
+eedcm108.sglcarbon.eu   cust=EDC   dtap=PRD   comment='Linux Server'
+eedcm109.sglcarbon.eu   cust=EDC   dtap=PRD   comment='Linux Server'
+eedcs503.logon.sglcarbon.net   cust=EDC   dtap=PRD   comment='Linux Server'
+eedcs551.sglcarbon.eu   cust=EDC   dtap=PRD   comment='Linux Server'
+eedcs802.sglcarbon.eu   cust=EDC   dtap=PRD   comment='Linux Server'
+eedcs803.sglcarbon.eu   cust=EDC   dtap=PRD   comment='Linux Server'
+eedcs900.sglcarbon.eu   cust=EDC   dtap=PRD   comment='Linux Server'
+eedcs956.sglcarbon.eu   cust=EDC   dtap=PRD   comment='Linux Server'
+emebs030.meb.sglcarbon.eu   cust=MEB   dtap=PRD   comment='Linux Server'
+ewacs426.sglcarbon.eu   cust=WAC   dtap=PRD   comment='Linux Server'
+nmrgs950.sglcarbon.com   cust=MRG   dtap=PRD   comment='Linux Server'
+nndcs501.sglcarbon.com   cust=NDC   dtap=PRD   comment='Linux Server'
+nndcs956.sglcarbon.com   cust=NDC   dtap=PRD   comment='Linux Server'
+wedcs143.sglcarbon.eu   cust=EDC   dtap=PRD   comment='Linux Server'
+wedcs300.sglcarbon.eu   cust=EDC   dtap=PRD   comment='Linux Server'
+wedcs550.sglcarbon.eu   cust=EDC   dtap=PRD   comment='Linux Server'
+
+
+
+
+
+[eu_libs]
+emeir101.logon.sglcarbon.net   cust=MEI   dtap=PRD   comment='LIB'
+ewier101.logon.sglcarbon.net   cust=WIE   dtap=PRD   comment='LIB'
+ebonr101.logon.sglcarbon.net   cust=BON   dtap=PRD   comment='LIB'
+ewilr101.logon.sglcarbon.net   cust=WIL   dtap=PRD   comment='LIB'
+elimr101.logon.sglcarbon.net   cust=LIM   dtap=PRD   comment='LIB'
+ewacr101.logon.sglcarbon.net   cust=WAC   dtap=PRD   comment='LIB'
+erier101.logon.sglcarbon.net   cust=RIE   dtap=PRD   comment='LIB'
+eortr101.logon.sglcarbon.net   cust=ORT   dtap=PRD   comment='LIB'
+emadr101.logon.sglcarbon.net   cust=MAD   dtap=PRD   comment='LIB'
+echer101.logon.sglcarbon.net   cust=CHE   dtap=PRD   comment='LIB'
+ehalr101.logon.sglcarbon.net   cust=HAL   dtap=PRD   comment='LIB'
+emoor101.logon.sglcarbon.net   cust=MOO   dtap=PRD   comment='LIB'
+egrnr101.logon.sglcarbon.net   cust=GRN   dtap=PRD   comment='LIB'
+elavr101.logon.sglcarbon.net   cust=LAV   dtap=PRD   comment='LIB'
+egrnr101.logon.sglcarbon.net   cust=GRN   dtap=PRD   comment='LIB'
+eracr101.logon.sglcarbon.net   cust=RAC   dtap=PRD   comment='LIB'
+enszr101.logon.sglcarbon.net   cust=NSZ   dtap=PRD   comment='LIB'
+
+[eu_libs:vars]
+ansible_user = ansible
+softlayer_speedtest = fra02
+
+
+[us_libs]
+narkr101.logon.sglcarbon.net   cust=ARK   dtap=PRD   comment='LIB'
+ncltr101.logon.sglcarbon.net   cust=CLT   dtap=PRD   comment='LIB'
+ngarr101.logon.sglcarbon.net   cust=GAR   dtap=PRD   comment='LIB'
+nmgpr101.logon.sglcarbon.net   cust=GPR   dtap=PRD   comment='LIB'
+nmlkr101.logon.sglcarbon.net   cust=MLK   dtap=PRD   comment='LIB'
+nmrgr101.logon.sglcarbon.net   cust=MGR   dtap=PRD   comment='LIB'
+nstmr101.logon.sglcarbon.net   cust=STM   dtap=PRD   comment='LIB'
+nstvr101.logon.sglcarbon.net   cust=STV   dtap=PRD   comment='LIB'
+nvalr101.logon.sglcarbon.net   cust=VAL   dtap=PRD   comment='LIB'
+
+[us_libs:vars]
+ansible_user = ansible
+softlayer_speedtest = wdc01
+
+
+[a_libs]
+apunr101.logon.sglcarbon.net   cust=PUN   dtap=PRD   comment='LIB'
+ashar101.logon.sglcarbon.net   cust=SHA   dtap=PRD   comment='LIB'
+ashxr101.logon.sglcarbon.net   cust=SHX   dtap=PRD   comment='LIB'
+atokr101.logon.sglcarbon.net   cust=TOK   dtap=PRD   comment='LIB'
+
+[a_libs:vars]
+ansible_user = ansible
+softlayer_speedtest = sng01

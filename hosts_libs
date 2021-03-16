@@ -1,0 +1,49 @@
+[all:vars]
+ansible_user = ansible
+
+[eu_libs]
+emeir101.logon.sglcarbon.net
+ewier101.logon.sglcarbon.net
+ebonr101.logon.sglcarbon.net
+ewilr101.logon.sglcarbon.net
+elimr101.logon.sglcarbon.net
+ewacr101.logon.sglcarbon.net
+erier101.logon.sglcarbon.net
+eortr101.logon.sglcarbon.net
+emadr101.logon.sglcarbon.net
+echer101.logon.sglcarbon.net
+ehalr101.logon.sglcarbon.net
+emoor101.logon.sglcarbon.net
+egrnr101.logon.sglcarbon.net
+elavr101.logon.sglcarbon.net
+egrnr101.logon.sglcarbon.net
+eracr101.logon.sglcarbon.net
+enszr101.logon.sglcarbon.net
+
+[eu_libs:vars]
+softlayer_speedtest = fra02
+
+
+[us_libs]
+narkr101.logon.sglcarbon.net
+ncltr101.logon.sglcarbon.net
+ngarr101.logon.sglcarbon.net
+nmgpr101.logon.sglcarbon.net
+nmlkr101.logon.sglcarbon.net
+nmrgr101.logon.sglcarbon.net
+nstmr101.logon.sglcarbon.net
+nstvr101.logon.sglcarbon.net
+nvalr101.logon.sglcarbon.net
+
+[us_libs:vars]
+softlayer_speedtest = wdc01
+
+
+[a_libs]
+apunr101.logon.sglcarbon.net
+ashar101.logon.sglcarbon.net
+ashxr101.logon.sglcarbon.net
+atokr101.logon.sglcarbon.net
+
+[a_libs:vars]
+softlayer_speedtest = sng01

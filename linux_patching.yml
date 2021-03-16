@@ -1,0 +1,311 @@
+--- # CentOS Linux Security and BugFix Patching
+#
+# AUDIT:   ansible-playbook linux_patching.yml --tags audit
+# DRY-RUN:   ansible-playbook linux_patching.yml --tags sec_dryrun,bug_dryrun
+# APPLY SECURITY AND BUGFIX PATCHING:   ansible-playbook linux_patching.yml --tags apply_sec,apply_bug
+#
+### all with log:   nohup <command> | tee output.log &
+#
+# Spacewalk url to review available security and bugfix:
+# https://spacewalk.sglcarbon.eu/rhn/systems/SystemCurrency.do
+
+
+
+### CentOS Linux Security and BugFix Patching
+- name: linux_patching
+  #roles:
+  #  - logging
+  #hosts: all
+  #hosts: localhost:jump_servers:!zabbix_proxies:!linux_servers
+  hosts:
+    - eedcs551.sglcarbon.eu
+    - eedcm108.sglcarbon.eu
+    - eeazs426.logon.sglcarbon.net
+    - hoenlemi-centos-desktop.sglcarbon.eu
+  connection: ssh
+  gather_facts: yes
+
+#########
+# VARS
+#########
+
+  vars:
+    security_patching_available: false
+    bugfix_patching_available: false
+    security_run: "--assumeno"
+    bugfix_run: "--assumeno"
+    temp_output: ""
+    #log_output: "'{{ ansible_play_name }}'.'{{ ansible_date_time.iso8601_basic_short }}'.log"
+    log_output: "/var/www/html/ansible/linux_patching/'{{ ansible_play_name }}'.'{{ ansible_date_time.iso8601_basic_short }}'.'{{ inventory_hostname_short }}'.log"
+  tasks:
+
+
+#########
+# TASK - PRE TASKS
+#########
+
+  pre_tasks:
+
+    - fail: msg="Checking Linux OS (Redhat Family)"
+      when: ansible_os_family != "RedHat"
+      ignore_errors: no
+      tags: always
+
+
+    # PROMPT TO CONFIRM. DISABLE IN CASE OF AUTOMATION
+    - pause:
+         prompt: "> Are you sure you want to CONTINUE and APPLY CHANGES ?\nTo CONTINUE, press ENTER.\nTo CANCEL, press CTRL+C.\n"
+      tags: apply_sec, apply_bug
+
+
+
+#########
+# TASK - AUDIT AVAILABLE SECURITY UPDATES
+#########
+
+    - name: Audit Available Security Patching
+      shell: yum list-security --security | grep security
+      register: security_list
+      changed_when: security_list.rc == 0
+      failed_when: false
+      tags: always
+
+    # NOK: Security Patching available
+    - set_fact:
+        security_patching_available: True
+        temp_output: "   NOK: Security Patching available:\n   {{ security_list.stdout_lines | to_nice_json }}\n"
+      when: security_list.rc == 0
+      tags: always
+
+    - debug:
+        msg:
+          - "   NOK: Security Patching available:"
+          -  "{{ security_list.stdout_lines }}"
+      when: security_patching_available |bool
+      tags: audit
+
+
+    # OK: No Security Patching available
+    - set_fact:
+        temp_output: "   OK: No Security Patching available.\n"
+      when: not security_patching_available |bool
+      tags: audit
+
+    - debug:
+        msg: "   OK: No Security Patching available."
+      when: not security_patching_available |bool
+      tags: audit
+
+
+    - name: Logging to file - Audit Available Security Patching
+      shell: |
+         echo -e "\n\n\n[ {{ inventory_hostname }} ]   @   {{ ansible_date_time.iso8601_basic_short }}\n\n" >> {{ log_output }}
+         echo -e '{{ temp_output }}' >> {{ log_output }}
+      delegate_to: localhost
+      changed_when: false
+      failed_when: false
+      tags: audit
+
+
+
+#########
+# TASK - AUDIT AVAILABLE BUGFIX UPDATES
+#########
+
+    - name: Audit Available Bugfix Patching
+      shell: yum list-security --bugfix | grep bugfix
+      register: bugfix_list
+      changed_when: bugfix_list.rc == 0
+      failed_when: false
+      tags: always
+
+
+    # NOK: BugFix Patching available
+    - set_fact:
+        bugfix_patching_available: True
+        temp_output: "   NOK: BugFix Patching available:\n   {{ bugfix_list.stdout_lines | to_nice_json }}\n"
+      when: bugfix_list.rc == 0
+      tags: always
+
+    - debug:
+        msg:
+          - "   NOK: BugFix Patching available:"
+          - "{{ bugfix_list.stdout_lines }}"
+      when: bugfix_patching_available |bool
+      tags: audit
+
+
+    # OK: No BugFix Patching available
+    - set_fact:
+        temp_output: "   OK: No BugFix Patching available.\n"
+      when: not bugfix_patching_available |bool
+      tags: audit
+
+    - debug:
+        msg: "   OK: No BugFix Patching available."
+      when: not bugfix_patching_available |bool
+      tags: audit
+
+
+    - name: Logging to file - List Available Bugfix Patching
+      shell: |
+        echo -e "\n\n\n[ {{ inventory_hostname }} ]   @   {{ ansible_date_time.iso8601_basic_short }}\n\n" >> {{ log_output }}
+        echo -e '{{ temp_output }}' >> {{ log_output }}
+      delegate_to: localhost
+      changed_when: false
+      failed_when: false
+      tags: audit
+
+
+#########
+# TASK - FAIL IF PATCHING AVAILABLE
+#########
+
+    - fail: msg="Security Patching is available"
+      when: security_patching_available |bool
+      ignore_errors: yes
+      tags: audit
+
+    - fail: msg="Bugfix Patching is available"
+      when: bugfix_patching_available |bool
+      ignore_errors: yes
+      tags: audit
+
+
+
+#########
+# TASK - APPLY SECURITY ERRATA
+#########
+
+    - set_fact: security_run="-y"
+      tags: apply_sec
+
+    - name: Apply available Security Patching
+      shell: yum update-minimal --security '{{ security_run }}'
+      when: security_patching_available |bool
+      #ignore_errors: yes
+      failed_when: false
+      register: security_list2
+      tags: apply_sec, sec_dryrun
+
+    - debug:
+        msg:
+          - "{{ security_list2.cmd }}"
+          - "{{ security_list2.stdout_lines }}"
+      when: security_list2.stdout_lines is defined
+      tags: apply_sec, sec_dryrun
+
+
+    - set_fact:
+        temp_output: "   {{ security_list2.cmd }}\n   {{ security_list2.stdout_lines | to_nice_json }}\n"
+      when: security_list2.stdout_lines is defined
+      tags: apply_sec, sec_dryrun
+
+    - name: Logging to file - Apply available Security Patching
+      shell: |
+        echo -e "\n\n\n[ {{ inventory_hostname }} ]   @   {{ ansible_date_time.iso8601_basic_short }}\n\n" >> {{ log_output }}
+        echo -e '{{ temp_output }}' >> {{ log_output }}
+      delegate_to: localhost
+      when: security_list2.stdout_lines is defined
+      changed_when: false
+      failed_when: false
+      tags: apply_sec, sec_dryrun
+
+
+
+#########
+# TASK - APPLY BUGFIX ERRATA
+#########
+
+    - set_fact: bugfix_run="-y"
+      tags: apply_bug
+
+    - name: Apply available Bugfix Patching
+      shell: yum update-minimal --bugfix '{{bugfix_run}}'
+      when: bugfix_patching_available |bool
+      #ignore_errors: yes
+      failed_when: false
+      register: bugfix_list2
+      tags: apply_bug, bug_dryrun
+
+    - debug:
+        msg:
+          - "{{ bugfix_list2.cmd }}"
+          - "{{ bugfix_list2.stdout_lines }}"
+      when: bugfix_list2.stdout_lines is defined
+      tags: apply_bug, bug_dryrun
+
+
+    - set_fact:
+        temp_output: "   {{ bugfix_list2.cmd }}\n   {{ bugfix_list2.stdout_lines | to_nice_json }}\n"
+      when: bugfix_list2.stdout_lines is defined
+      tags: apply_bug, bug_dryrun
+
+    - name: Logging to file - Apply available Bugfix Patching
+      shell: |
+         echo -e "\n\n\n[ {{ inventory_hostname }} ]   @   {{ ansible_date_time.iso8601_basic_short }}\n\n" >> {{ log_output }}
+         echo -e '{{ temp_output }}' >> {{ log_output }}
+      delegate_to: localhost
+      when: bugfix_list2.stdout_lines is defined
+      changed_when: false
+      failed_when: false
+      tags: apply_bug, bug_dryrun
+
+
+
+#########
+# TASK - LOG FILES IN WEB SERVER
+#########
+
+    - name: Copy log file to Web Server, and enforce a retention of 1000 existing files.
+      shell: |
+        ls -at /var/www/html/ansible/linux_patching/*.log | tail -n +1001 | xargs rm -f
+        cd /var/www/html/ansible/linux_patching && tree -T "LINUX PATCHING" -H '.' --noreport --charset utf-8 -r -P "*.log" > index.html
+        chown ansible.ansible /var/www/html/ansible/linux_patching/*
+      delegate_to: localhost
+      changed_when: false
+      failed_when: false
+      tags: always
+
+
+
+#########
+# TASK - Check against Spacewalk Server
+#########
+
+    - name: Check against Spacewalk Server
+      shell: |
+        rhn_check -vvv
+        rhn-profile-sync
+      changed_when: false
+      failed_when: false
+      tags: apply_sec, apply_bug
+
+
+
+#########
+# TASK - CLEANUP TASKS
+#########
+
+    #note: to_nice_json causes files to be created aside the log file: Running, Package, Finished.
+    # - name: Delete files created incorrectly with log (caused by to_nice_json)
+    #   file:
+    #     path: "{{ item }}"
+    #     state: absent
+    #   with_items:
+    #     - Running
+    #     - Package
+    #     - Finished
+    #   delegate_to: localhost
+    #   failed_when: false
+    #   changed_when: false
+    #   tags: always
+
+
+
+    # LOGGING: Run roles/loggin/tasks/logging.yml, instead of 'main'
+    # - name: Logging "temp_output" variable to output file.
+    #   include_role:
+    #      name: logging
+    #      tasks_from: logging
+    #   tags: ...

@@ -1,0 +1,83 @@
+--- # LIBs AUDIT
+# ansible-playbook -i hosts -e ansible_python_interpreter=auto_silent -l nstmr101.logon.sglcarbon.net libs_audit.yml
+# ansible-playbook -i hosts -e ansible_python_interpreter=auto_silent -l eu_libs libs_audit.yml   2>&1 | tee audit_eu_libs.log
+
+- name: LIBs AUDIT
+  #hosts: all
+  hosts: eu_libs:us_libs:a_libs
+  #hosts: eu_libs:!us_libs:!a_libs
+  #hosts:
+    #- nstmr101.logon.sglcarbon.net
+    #- elimr101.logon.sglcarbon.net
+  #user: ansible
+  #become: yes
+  #become_method: sudo
+  gather_facts: no
+
+
+#########
+# VARS
+#########
+
+  vars:
+    commands_list:
+      - echo -e "=== PEER IP ==="
+      - grep "peer " /config/config.boot |  sed -e 's/^[[:space:]]*//' | awk '{print $2}'
+      ###- grep -B 1 -A 17 "peer " /config/config.boot
+      ###
+      - echo -e "\n\n=== DATACENTER ==="
+      - sudo curl -s --max-time 15 http://pod.threatpulse.com --interface vti0 | grep -i "data center" | sed 's/<[^>]*>/\n/g'
+      ###
+      - echo -e "\n\n=== SPEEDTEST - by Softlayer - one file download using tunnel, to check Web Security ==="
+      - sudo /home/ansible/softlayer.sh {{ softlayer_speedtest}}
+      ###
+      - echo -e "\n\n=== SPEEDTEST - by Ookla - multiple files download NOT using tunnel, to check Telecom Provider ==="
+      - sudo /home/ansible/speedtest.py
+
+
+  tasks:
+
+
+#########
+# TASK - DEPLOY SPEEDTEST SCRIPTs
+#########
+
+    - name: Copy Softlayer speedtest script to remote host
+      copy:
+        src: softlayer.sh
+        dest: /home/ansible/softlayer.sh
+        mode: '0744'
+        force: no
+      ignore_errors: yes
+
+    - name: Copy Ookla speedtest script to remote host
+      copy:
+        src: speedtest_jd.py
+        dest: /home/ansible/speedtest.py
+        mode: '0744'
+        force: no
+      ignore_errors: yes
+
+
+#########
+# TASK - RUN LIST OF COMMANDS
+#########
+
+    - name: Run List of Commands
+      shell: '{{ item }}'
+      with_items: '{{ commands_list }}'
+      args:
+        warn: no
+      #failed_when: false
+      changed_when: false
+      ignore_errors: yes
+      register: output_commands
+
+
+#########
+# OUTPUT
+#########
+
+    - debug:
+        msg:
+          - "{{ output_commands.results | json_query('[].stdout_lines[]') }}"
